@@ -1,0 +1,75 @@
+main.tactics-filter {
+
+    display: grid;
+    grid-template-areas: 'board list';
+
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 100vh;
+
+    .list-wrap {
+        grid-area: list;
+    }
+
+    .board-wrap {
+        grid-area: board;
+    }
+
+    .board-wrap {
+        aspect-ratio: 1;
+    }
+
+    .list-wrap {
+
+        display: flex;
+        flex-flow: column;
+        .filter {
+            display: flex;
+            padding: 0.1em;
+
+            input {
+                flex: 1;
+                padding: 0.3em;
+                text-align: center;
+            }
+        }
+    }
+
+    .tactics-list {
+        overflow-y: scroll;
+
+        .list {
+
+            .item {
+                -webkit-user-select: none;
+                user-select: none;
+                cursor: pointer;
+                display: flex;
+                justify-content: space-between;
+                padding: 1em 0.3em;
+
+                .id {
+                    flex: 1;
+                }
+
+                .tags {
+                    flex: 3;
+                }
+
+                .tags2 {
+                    flex: 3;
+                    display: flex;
+                    flex-flow: row wrap;
+                    gap: 0.3em;
+                }
+
+                &:hover {
+                    background: #aaa;
+                }
+                &.active {
+                    background: #999;
+                }
+
+            }
+        }
+    }
+}

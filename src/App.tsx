@@ -1,6 +1,8 @@
-import { createEffect } from 'solid-js'
+import { lazy } from 'solid-js'
 import './App.scss'
-import { StoreProvider, useStore } from './state'
+import { StoreProvider } from './state'
+
+const Tactics = lazy(() => import('./views/tactics/Show'))
 
 function App() {
   return (<>
@@ -8,23 +10,6 @@ function App() {
       <Tactics />
   </StoreProvider>
   </>)
-}
-
-function Tactics() {
-  let [{ tactics }] = useStore()
-
-  createEffect(() => {
-
-  console.log(tactics.a_hundred.length)
-  })
-
-  return (
-    <>
-    <main class='tactics-filter'>
-
-    </main>
-    </>
-  )
 }
 
 export default App

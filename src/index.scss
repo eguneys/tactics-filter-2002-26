@@ -1,0 +1,64 @@
+* {
+    margin: 0;
+    padding: 0;
+        -webkit-user-select: none;
+        user-select: none;
+}
+
+
+@font-face {
+    font-family: 'Saira';
+    src: url('/Saira-VariableFont_wdth,wght.ttf');
+    font-display: auto;
+}
+
+html {
+  min-height: 100vh;
+  flex-flow: column;
+  display: flex;
+  justify-content: center;
+}
+
+body {
+    font-family: 'Saira';
+    background: #ccc;
+}
+
+
+p, button {
+    margin: 8px;
+}
+
+a {
+    text-decoration: none;
+    color: rgb(16, 35, 110);
+}
+
+ul {
+    list-style: decimal;
+    list-style-position: inside;
+
+    div, span {
+        margin-left: 0.3em;
+    }
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
