@@ -18,11 +18,14 @@ import { PuzzleMemo } from './throw_later'
 
 export default function Tactics() {
 
-    const [selected_puzzle, set_selected_puzzle] = createSignal<Puzzle>()
 
-    const [{tactics}] = useStore()
+    //const [{tactics}] = useStore()
+    //const a_hundred = createMemo(() => tactics.a_hundred)
 
-    const a_hundred = createMemo(() => tactics.a_hundred)
+    const ww = useWorker()
+
+    const a_hundred = createMemo(() => ww.puzzles ?? [])
+
 
     const [p_store, set_p_store] = makePersisted(createStore({
         filter1: '',
@@ -37,7 +40,7 @@ export default function Tactics() {
         a_hundred().filter(f_filter1()).filter(f_filter2())
     )
 
-  set_selected_puzzle(filtered_tactics().find(_ => _.id === p_store.puzzle_id))
+    const selected_puzzle = createMemo(() => filtered_tactics().find(_ => _.id === p_store.puzzle_id))
 
     const on_goto_path = (path?: Path) => {
       if (path === undefined) {
@@ -109,7 +112,6 @@ export default function Tactics() {
 
   const on_selected = (puzzle: Puzzle) => {
     batch(() => {
-      set_selected_puzzle(puzzle)
       set_replay_tree('cursor_path', '')
       set_p_store('puzzle_id', puzzle.id)
     })
@@ -122,6 +124,15 @@ export default function Tactics() {
   const on_copy_fen = () => {
     navigator.clipboard.writeText(fen())
   }
+  const on_copy_id = () => {
+    let id = selected_puzzle()?.id
+    if (!id) {
+      return
+    }
+    navigator.clipboard.writeText(id)
+  }
+
+
 
   return (
     <>
@@ -145,6 +156,7 @@ export default function Tactics() {
       <div class='replay-wrap'>
         <div class='tools'>
           <button onClick={on_copy_fen}>Copy FEN</button>
+          <button onClick={on_copy_id}>Copy Puzzle ID</button>
         </div>
         <ReplayTreeComponent handle_goto_path={on_goto_path} lose_focus={true} replay_tree={replay_tree}/>
       </div>

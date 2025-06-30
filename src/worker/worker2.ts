@@ -68,7 +68,7 @@ function work_while_checking() {
 
     for (let i = 0; i < puzzles.length; i++) {
         if (i % 10 === 0) {
-            send_progress([i, puzzles.length])
+            //send_progress([i, puzzles.length])
         }
 
         let puzzle = puzzles[i]
