@@ -13,6 +13,7 @@
     "@solidjs/router": "^0.15.3",
     "chessground": "^9.2.1",
     "chessops": "^0.14.2",
+    "hopefox": "link:../hopefox",
     "solid-js": "^1.9.7"
   },
   "devDependencies": {

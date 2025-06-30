@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  hopefox: link:../hopefox
+
 importers:
 
   .:
@@ -20,6 +23,9 @@ importers:
       chessops:
         specifier: ^0.14.2
         version: 0.14.2
+      hopefox:
+        specifier: link:../hopefox
+        version: link:../hopefox
       solid-js:
         specifier: ^1.9.7
         version: 1.9.7

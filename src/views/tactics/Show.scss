@@ -1,12 +1,19 @@
 main.tactics-filter {
 
+    margin: 1em;
+
     display: grid;
     grid-template-areas: 
-    'board list'
-    'board replay';
+    'code board list'
+    'code replay list';
+    column-gap: 1em;
 
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 45vh;
+    grid-template-columns: 1fr 50vh 1fr;
+    grid-template-rows: 50vh calc(50vh - 2em);
+
+    .code-wrap {
+        grid-area: code;
+    }
 
     .replay-wrap {
         grid-area: replay;
@@ -88,5 +95,153 @@ main.tactics-filter {
 
             }
         }
+    }
+
+
+    .codebox {
+        display: flex;
+        flex-flow: column;
+
+
+
+
+
+        .rule-list {
+            display: flex;
+            flex-flow: column;
+            flex: 0 0 200px;
+            min-height: 200px;
+
+            .tools {
+                display: flex;
+                justify-content: space-between;
+                margin: 0.3em 0.5em;
+            }
+
+            .scroll-wrap {
+                overflow-y: scroll;
+                flex: 1;
+                background: gray;
+                .rule {
+
+                    display: flex;
+                    justify-content: space-between;
+
+                    user-select: none;
+                    cursor: pointer;
+                    padding: 0.2em;
+                    background: white;
+                    color: black;
+
+                    &.active {
+                        background:hsl(350, 62%, 52%);
+                        color: white;
+                    }
+                }
+            }
+        }
+
+
+        .editor-input {
+            resize: none;
+            font-size: 1.3em;
+            padding: 0.3em;
+        }
+
+      .editor {
+
+        flex: 2;
+        .scroll-wrap {
+            position: relative;
+            overflow-y: scroll;
+            width: 100%;
+            padding-bottom: 5em;
+        }
+
+
+        font-family: Inter;
+        display: flex;
+        .rule {
+            display: flex;
+            gap: 0.5em;
+
+            .score, .minmax {
+                color: hsl(0, 71%, 47%);
+            }
+            .san {
+                color:hsl(350, 62%, 52%);
+            }
+            .score, .san {
+                font-size: 0.9em;
+                font-style: italic;
+            }
+        }
+
+        .new {
+            opacity: 0.2;
+            cursor: pointer;
+
+            &:hover {
+                opacity: 0.8;
+            }
+        }
+
+        .rule, .new {
+            &::before {
+                position: absolute;
+                width: 10px;
+                height: 8px;
+                margin-top: .65em;
+                margin-left: -20px;
+                border-top: 4px solid #4a4a4a;
+                content: '';
+            }
+        }
+
+        .nest {
+            display: flex;
+            flex-flow: column;
+            gap: 0.1em;
+            padding-left: 20px;
+            padding-top: 2px;
+            border-left: 4px solid #4a4a4a;
+
+            &::before {
+                position: absolute;
+                width: 12px;
+                height: 8px;
+                margin-top: -2px;
+                margin-left: -32px;
+                border-top: 4px solid #4a4a4a;
+                content: '';
+            }
+        }
+      }
+
+      .text-wrap {
+        flex: 1;
+        display: flex;
+        .ascii {
+            flex: 3;
+            font-family: Inter;
+            padding: 0.5em;
+
+            display: flex;
+            flex-flow: column;
+            gap: 0.5em;
+
+            textarea {
+                flex: 1;
+                user-select: none;
+                background-color: white;
+                color: black;
+                resize: none;
+            }
+        }
+
+        .editor-input {
+            flex: 2;
+        }
+      }
     }
 }
