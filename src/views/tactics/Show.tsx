@@ -1,39 +1,24 @@
 import wasm_url from '../../assets/wasm/hopefox.wasm?url'
-import { batch, createMemo, createSelector, createSignal, For, mapArray, onCleanup, Show, useContext } from "solid-js"
+import { batch, createMemo, createSelector, createSignal, For, mapArray, Show } from "solid-js"
 import { useStore } from "../../state"
 import './Show.scss'
-import { yn_filter, type Puzzle } from "../../state/puzzles"
+import { puzzle_all_tags, yn_filter, type Puzzle } from "../../worker/puzzles"
 import { non_passive_on_wheel, PlayUciBoard } from "../../components/PlayUciBoard"
 import { type Color } from "chessops"
 import { INITIAL_FEN } from "chessops/fen"
 import { makePersisted } from "@solid-primitives/storage"
 import { createStore } from "solid-js/store"
-import { createReplayTreeComputed, find_at_path, find_parent_and_child_at_path, ReplayTreeComponent, type ModelReplayTree, type ModelStepsTree, type ModelTreeStepNode } from "../../components/ReplayTreeComponent"
-import { make_steps_from_ucis, type FEN, type Path } from "../../components/step_types"
+import { createReplayTreeComputed, find_at_path, ReplayTreeComponent, type ModelReplayTree, type ModelStepsTree, type ModelTreeStepNode } from "../../components/ReplayTreeComponent"
+import { make_steps_from_ucis, type FEN, type Path, type SAN, type UCI } from "../../components/step_types"
 import { makePersistedNamespaced } from "../../components/persisted"
 import { createAsync } from "@solidjs/router"
-import { mor3, PIECE_NAMES, PositionManager, set_m } from "hopefox"
-import { WorkerContext, WorkerProvider } from '../../worker/Worker2'
+import { find_san_mor, mor3, PositionManager, set_m } from "hopefox"
+import { useWorker } from '../../worker/Worker2'
 import { PuzzleMemo } from './throw_later'
 
 export default function Tactics() {
 
-  return (<>
-  <WorkerProvider>
-      <WithWorker />
-  </WorkerProvider>
-  </>)
-}
-
-function WithWorker() {
-
     const [selected_puzzle, set_selected_puzzle] = createSignal<Puzzle>()
-
-    const puzzle_all_tags = (puzzle: Puzzle) => {
-        let res: Record<string, true> = {}
-        puzzle.tags.forEach(_ => res[_] = true)
-        return res
-    }
 
     const [{tactics}] = useStore()
 
@@ -41,15 +26,18 @@ function WithWorker() {
 
     const [p_store, set_p_store] = makePersisted(createStore({
         filter1: '',
-        filter2: ''
+        filter2: '',
+        puzzle_id: ''
     }))
 
-    const f_filter1 = createMemo(()=> yn_filter(p_store.filter1, puzzle_all_tags))
-    const f_filter2 = createMemo(()=> yn_filter(p_store.filter2, puzzle_all_tags))
+    const f_filter1 = createMemo(()=> yn_filter(p_store.filter1))
+    const f_filter2 = createMemo(()=> yn_filter(p_store.filter2))
 
     const filtered_tactics = createMemo(() => 
         a_hundred().filter(f_filter1()).filter(f_filter2())
     )
+
+  set_selected_puzzle(filtered_tactics().find(_ => _.id === p_store.puzzle_id))
 
     const on_goto_path = (path?: Path) => {
       if (path === undefined) {
@@ -98,7 +86,7 @@ function WithWorker() {
     let c  = find_at_path(replay_tree.steps_tree, replay_tree.cursor_path)
 
     if (c) {
-      return [c.step.uci, c.step.san]
+      return [c.step.uci, c.step.san] as [UCI, SAN]
     }
   }
 
@@ -123,15 +111,16 @@ function WithWorker() {
     batch(() => {
       set_selected_puzzle(puzzle)
       set_replay_tree('cursor_path', '')
+      set_p_store('puzzle_id', puzzle.id)
     })
 
-    let i = setTimeout(() => {
+    setTimeout(() => {
       goto_path_if_can(c_props.get_next_path)
     }, 200)
+  }
 
-    onCleanup(() => {
-      clearTimeout(i)
-    })
+  const on_copy_fen = () => {
+    navigator.clipboard.writeText(fen())
   }
 
   return (
@@ -154,31 +143,36 @@ function WithWorker() {
         <PlayUciBoard color={color()} fen={fen()} last_move={last_move()}/>
       </div>
       <div class='replay-wrap'>
-        <ReplayTreeComponent handle_goto_path={on_goto_path} lose_focus={false} replay_tree={replay_tree}/>
+        <div class='tools'>
+          <button onClick={on_copy_fen}>Copy FEN</button>
+        </div>
+        <ReplayTreeComponent handle_goto_path={on_goto_path} lose_focus={true} replay_tree={replay_tree}/>
       </div>
+
+        <Progress />
     </main>
     </>
   )
 }
 
-function extract_pieces(text: string) {
-  let res = []
-  for (let a = 0; a < text.length; a++) {
-    if (PIECE_NAMES.includes(text[a + 0] + text[a + 1])) {
 
-      res.push(text[a + 0] + text[a + 1])
-      a += 2
-    }
-    if (PIECE_NAMES.includes(text[a + 0])) {
-      res.push(text[a + 0])
-    }
-  }
-  return res
+const Progress = () => {
+
+  const ww = useWorker()
+
+
+  return (<>
+    <Show when={ww.progress}>{progress =>
+      <div class='progress'> {progress()[0]}/{progress()[1]} </div>
+    }</Show>
+  </>
+  )
 }
+
 
 function Codebox(props: { fen?: FEN }) {
 
-  let ww = useContext(WorkerContext)!
+  let ww = useWorker()
   const filtered = createMemo(mapArray(() => ww.all, PuzzleMemo.create))
 
   const nb_failed = (name: string) => {
@@ -253,8 +247,7 @@ function Codebox(props: { fen?: FEN }) {
   let get_m = createAsync<PositionManager>(() => PositionManager.make(() => wasm_url))
 
   let found_san = createMemo(() => { 
-    return ''
-    let m = get_m()
+    const m = get_m()
     let rule = selected_rule().rule
     if (!props.fen) {
       return undefined
@@ -264,7 +257,7 @@ function Codebox(props: { fen?: FEN }) {
     }
     set_m(m)
     try {
-      return mor3(rule, extract_pieces(rule), props.fen)
+      return find_san_mor(props.fen, rule)
     } catch(e) {   
       return 'Error' + e
     }
@@ -272,7 +265,7 @@ function Codebox(props: { fen?: FEN }) {
 
   const ascii_san = createMemo(() => {
     let rule = selected_rule()
-    if (!rule || !props.fen) {
+    if (!rule || !rule.rule || !props.fen) {
       return
     }
     let m = get_m()
@@ -280,7 +273,7 @@ function Codebox(props: { fen?: FEN }) {
       return
     }
 
-    return mor3(rule.rule, extract_pieces(rule.rule), props.fen)
+    return mor3(rule.rule, props.fen)
 
     //let pos = Chess.fromSetup(parseFen(props.fen).unwrap()).unwrap()
     //return print_rules(make_root(props.fen, rule.rule, m), pos)
@@ -331,7 +324,7 @@ function TacticsList(props: { tactics: Puzzle[], selected_id: string | undefined
         <a class='id' href={puzzle.link} target="_blank">{puzzle.id}</a>
         <div class='tags'></div>
         <div class="tags2">
-        <For each={puzzle.tags}>{ tag => 
+        <For each={Object.keys(puzzle_all_tags(puzzle))}>{ tag => 
           <span class='tag'>{tag}</span>
         }</For>
         </div>

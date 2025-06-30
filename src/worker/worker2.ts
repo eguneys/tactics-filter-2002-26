@@ -56,9 +56,10 @@ function work_while_checking() {
 
     let puzzles = all
 
-    puzzles = puzzles.filter(_ => _.sans[0].includes('B'))
-    puzzles = puzzles.filter(_ => !_.tags['mate'] && !_.tags['endgame'])
-    puzzles = puzzles.filter(_ => !_.tags['pin'] && !_.tags['fork'] && !_.tags['trappedPiece'] && !_.tags['hangingPiece'])
+    puzzles = puzzles.slice(0, 200)
+    //puzzles = puzzles.filter(_ => _.sans[0].includes('B'))
+    //puzzles = puzzles.filter(_ => !_.tags['mate'] && !_.tags['endgame'])
+    //puzzles = puzzles.filter(_ => !_.tags['pin'] && !_.tags['fork'] && !_.tags['trappedPiece'] && !_.tags['hangingPiece'])
     //puzzles = puzzles.filter(_ => _.id === '063RU')
     //puzzles = puzzles.filter(_ => !['08Ogr'].includes(_.id))
     //puzzles = puzzles.filter(_ => _.tags['mate'])

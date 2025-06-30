@@ -1,15 +1,39 @@
+@use '../../base_css/media';
+
 main.tactics-filter {
 
     margin: 1em;
 
     display: grid;
-    grid-template-areas: 
-    'code board list'
-    'code replay list';
+
+
+        grid-template-areas: 'code'
+        'board'
+        'replay'
+        'list';
+
+    @include media.mq-at-least-col2 {
+        grid-template-areas:
+        'code board'
+        'code replay'
+        'list list';
+    column-gap: 1em;
+
+}
+
+
+
+    @include media.mq-at-least-col3 {
+        grid-template-areas:
+        'code board list'
+        'code replay list';
     column-gap: 1em;
 
     grid-template-columns: 1fr 50vh 1fr;
     grid-template-rows: 50vh calc(50vh - 2em);
+}
+
+
 
     .code-wrap {
         grid-area: code;
@@ -33,6 +57,7 @@ main.tactics-filter {
 
     .replay-wrap {
         display: flex;
+        flex-flow: column;
 
         border-top: 1px solid #a0a0a0;
         .replay-tree {
@@ -80,6 +105,7 @@ main.tactics-filter {
                 }
 
                 .tags2 {
+                    font-size: 0.8em;
                     flex: 3;
                     display: flex;
                     flex-flow: row wrap;
@@ -243,5 +269,18 @@ main.tactics-filter {
             flex: 2;
         }
       }
+    }
+
+
+    .progress {
+        position: fixed;
+        border: 2px solid lime;
+        background: lightyellow;
+        bottom: 0;
+        right: 0;
+        margin: 1em;
+        padding: 1em;
+        font-size: 1.2em;
+        font-weight: bold;
     }
 }

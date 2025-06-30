@@ -1,4 +1,4 @@
-import { batch, createContext, createSignal, type JSX } from "solid-js"
+import { batch, createContext, createSignal, useContext, type JSX } from "solid-js"
 import type { Puzzle, Rule } from "./puzzles"
 import Worker from './worker2?worker'
 
@@ -11,7 +11,9 @@ type WorkerReturn = {
 }
 
 
-export const WorkerContext = createContext<WorkerReturn>()
+const WorkerContext = createContext<WorkerReturn>()
+
+export const useWorker = () => useContext(WorkerContext)!
 
 
 export const WorkerProvider = (props: { children: JSX.Element }) => {

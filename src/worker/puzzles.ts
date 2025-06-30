@@ -159,6 +159,9 @@ export function solve_p(p: Puzzle, rule: string) {
         }
       //let solved_san = find_san7(fen, rule)
       let solved_san = cache_san(fen, rule)
+      if (fen === "r6k/pp2r2p/4Rp1Q/3p4/8/1N1P2b1/PqP3PP/7K w - - 0 25") {
+      console.log(fen, solved_san, sans[0])
+      }
       if (solved_san === undefined) {
         return -1
       }
