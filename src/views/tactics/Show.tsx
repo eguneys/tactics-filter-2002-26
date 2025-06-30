@@ -1,6 +1,5 @@
 import wasm_url from '../../assets/wasm/hopefox.wasm?url'
 import { batch, createMemo, createSelector, createSignal, For, mapArray, Show } from "solid-js"
-import { useStore } from "../../state"
 import './Show.scss'
 import { puzzle_all_tags, yn_filter, type Puzzle } from "../../worker/puzzles"
 import { non_passive_on_wheel, PlayUciBoard } from "../../components/PlayUciBoard"
