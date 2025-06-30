@@ -2,7 +2,7 @@ import { Chessground } from "chessground"
 import type { Api } from "chessground/api"
 import { type DrawShape } from "chessground/draw"
 import type { Color, Key } from "chessground/types"
-import { type FEN, fen_pos, type SAN, type UCI } from "./step_types"
+import { type FEN, fen_pos, fen_turn, type SAN, type UCI } from "./step_types"
 import { createEffect, createMemo, onMount } from "solid-js"
 import { chessgroundDests } from "chessops/compat"
 import { stepwiseScroll } from "../common/scroll"
@@ -64,7 +64,7 @@ export function PlayUciBoard(props: {
       ground.set({
         lastMove,
         fen: props.fen,
-        turnColor: props.color,
+        turnColor: fen_turn(props.fen),
         orientation: props.orientation ?? 'white',
         check: check(),
         movable: {

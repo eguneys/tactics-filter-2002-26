@@ -1,10 +1,16 @@
 main.tactics-filter {
 
     display: grid;
-    grid-template-areas: 'board list';
+    grid-template-areas: 
+    'board list'
+    'board replay';
 
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 100vh;
+    grid-template-rows: 45vh;
+
+    .replay-wrap {
+        grid-area: replay;
+    }
 
     .list-wrap {
         grid-area: list;
@@ -16,6 +22,15 @@ main.tactics-filter {
 
     .board-wrap {
         aspect-ratio: 1;
+    }
+
+    .replay-wrap {
+        display: flex;
+
+        border-top: 1px solid #a0a0a0;
+        .replay-tree {
+            flex: 1;
+        }
     }
 
     .list-wrap {
@@ -49,10 +64,12 @@ main.tactics-filter {
 
                 .id {
                     flex: 1;
+                    display: flex;
+                    align-items: center;
                 }
 
                 .tags {
-                    flex: 3;
+                    flex: 4;
                 }
 
                 .tags2 {

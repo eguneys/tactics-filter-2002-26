@@ -1,6 +1,6 @@
 import { Chess, makeUci, opposite, parseUci, Position } from "chessops"
 import { INITIAL_FEN, makeFen, parseFen } from "chessops/fen"
-import { parseSan } from "chessops/san"
+import { makeSan, parseSan } from "chessops/san"
 
 export type FEN = string
 export type UCI = string
@@ -31,6 +31,41 @@ export const fen_after_uci = (fen: FEN, uci: UCI) => {
 }
 export const fen_winner = (fen: FEN) => fen_pos(fen).isCheckmate() ? opposite(fen_turn(fen)) : undefined
 export const fen_is_over_40 = (fen: FEN) => { return fen_pos(fen).fullmoves > 40 } 
+
+export function make_steps_from_ucis(ucis: UCI[], initial_fen = INITIAL_FEN) {
+
+    let res: Step[] = []
+    let pos = fen_pos(initial_fen)
+
+    let step0: Step | undefined
+    for (let uci of ucis) {
+        let move = parseUci(uci)!
+
+        let san = makeSan(pos, move)
+
+        pos.play(move)
+
+        let fen = makeFen(pos.toSetup())
+
+        let path: Path = step0 ? `${step0.path} ${uci}` : `${uci}`
+        let ply: number = step0 ? (step0.ply + 1) : 1
+        let before_fen: FEN = step0?.fen ?? initial_fen
+        let before_uci: UCI | undefined = step0?.uci 
+
+        step0 = {
+            path,
+            ply,
+            before_fen,
+            fen,
+            before_uci,
+            uci,
+            san,
+        }
+        res.push(step0)
+    }
+
+    return res
+}
 
 export function initial_step_play_san(san: SAN, initial_fen = INITIAL_FEN): Step {
     let pos = fen_pos(initial_fen)

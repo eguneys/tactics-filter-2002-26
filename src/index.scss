@@ -1,3 +1,5 @@
+@use './base_css/theme';
+
 * {
     margin: 0;
     padding: 0;
@@ -11,6 +13,20 @@
     src: url('/Saira-VariableFont_wdth,wght.ttf');
     font-display: auto;
 }
+
+
+@font-face {
+  font-family: 'Noto Chess';
+  font-display: block;
+  src: url('assets/fonts/lichess-chess.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'lichess';
+  font-display: block;
+  src: url(./assets/fonts/lichess.ttf);
+}
+
 
 html {
   min-height: 100vh;
@@ -61,4 +77,42 @@ ul {
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+
+
+
+[data-icon]::before {
+    line-height: 1em;
+    font-size: 1.2em;
+    vertical-align: middle;
+    font-family: 'lichess';
+    font-style: normal;
+    font-weight: normal;
+    text-transform: none;
+    content: attr(data-icon);
+    opacity: 0.9;
+}
+
+.fbt {
+    margin: 0;
+    padding: 0.2em;
+    text-transform: capitalize;
+    line-height: 1.5;
+    background: none;
+    border: none;
+    outline: none;
+    color: theme.$text-primary;
+    -webkit-user-select: none;
+    user-select: none;
+    cursor: pointer;
+
+    &:hover:not(.disabled) {
+        background: theme.$ac-li-purple;
+        color: theme.$text-primary;
+    }
+
+    &.disabled {
+        opacity: .5;
+        cursor: default;
+    }
 }
