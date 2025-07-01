@@ -5,6 +5,7 @@ import './ReplayTreeComponent.scss'
 import { INITIAL_FEN } from "chessops/fen"
 import { type Color } from "chessops"
 import { usePlayer } from "../sound"
+import { unwrap } from "solid-js/store"
 
 export type ModelStepsTree = {
     flat_nodes: Record<Path, ModelTreeStepNode[]>
@@ -93,6 +94,10 @@ export function find_at_path(tree: ModelStepsTree, path: Path) {
     let parent = parent_path(path)
     let nodes = tree.flat_nodes[parent]
 
+    if (nodes === undefined) {
+        console.log(path, parent, unwrap(tree.flat_nodes))
+        debugger
+    }
     let child = nodes.find(_ => _.step.path === path)
 
     return child

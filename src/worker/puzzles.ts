@@ -1,7 +1,7 @@
 import { Chess, LRUCache, parseUci } from "hopefox"
 import { makeFen, parseFen } from "hopefox/fen"
 import { makeSan } from "hopefox/san"
-import { find_san_mor } from 'hopefox'
+import { mor_nogen_find_san } from 'hopefox'
 
 
 export function parse_puzzles(str: string): Puzzle[] {
@@ -137,7 +137,7 @@ function cache_san(fen: string, rule: string) {
     }
 
     try {
-      const result = find_san_mor(fen, rule);
+      const result = mor_nogen_find_san(rule, fen);
       if (result === undefined) {
         lruCache.put(key, '--')
       } else {
@@ -159,8 +159,8 @@ export function solve_p(p: Puzzle, rule: string) {
         }
       //let solved_san = find_san7(fen, rule)
       let solved_san = cache_san(fen, rule)
-      if (p.id === '00JQS') {
-        console.log(fen, solved_san, sans[0])
+      if (p.id === '0000D') {
+        console.log(solved_san, 'XX', sans[0])
       }
       if (solved_san === undefined) {
         return -1

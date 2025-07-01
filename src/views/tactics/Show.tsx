@@ -11,7 +11,7 @@ import { createReplayTreeComputed, find_at_path, ReplayTreeComponent, type Model
 import { make_steps_from_ucis, type FEN, type Path, type SAN, type UCI } from "../../components/step_types"
 import { makePersistedNamespaced } from "../../components/persisted"
 import { createAsync } from "@solidjs/router"
-import { find_san_mor, mor3, PositionManager, set_m } from "hopefox"
+import { mor_nogen, mor_nogen_find_san, PositionManager, set_m } from "hopefox"
 import { useWorker } from '../../worker/Worker2'
 import { PuzzleMemo } from './throw_later'
 
@@ -116,6 +116,7 @@ export default function Tactics() {
     })
 
     setTimeout(() => {
+      console.log('going path', c_props.get_next_path)
       goto_path_if_can(c_props.get_next_path)
     }, 200)
   }
@@ -131,6 +132,18 @@ export default function Tactics() {
     navigator.clipboard.writeText(id)
   }
 
+  const set_filter_1 = (value: string) => {
+    batch(() => {
+      set_replay_tree('cursor_path', '')
+      set_p_store('filter1', value)
+    })
+  }
+  const set_filter_2 = (value: string) => {
+    batch(() => {
+      set_replay_tree('cursor_path', '')
+      set_p_store('filter2', value)
+    })
+  }
 
 
   return (
@@ -141,8 +154,8 @@ export default function Tactics() {
       </div>
       <div class='list-wrap'>
         <div class='filter'>
-            <input value={p_store.filter1} spellcheck={false} onInput={_ => set_p_store('filter1', _.target.value)} type='text' placeholder="Filter1: y_filter _!_ n_filter"></input>
-            <input value={p_store.filter2} spellcheck={false} onInput={_ => set_p_store('filter2', _.target.value)} type='text' placeholder="Filter2: y_filter _!_ n_filter"></input>
+            <input value={p_store.filter1} spellcheck={false} onInput={_ => set_filter_1(_.target.value)} type='text' placeholder="Filter1: y_filter _!_ n_filter"></input>
+            <input value={p_store.filter2} spellcheck={false} onInput={_ => set_filter_2(_.target.value)} type='text' placeholder="Filter2: y_filter _!_ n_filter"></input>
         </div>
         <div class='stats'>
           <span>{filtered_tactics().length}/{10000} Positions</span>
@@ -268,9 +281,9 @@ function Codebox(props: { fen?: FEN }) {
     }
     set_m(m)
     try {
-      return find_san_mor(props.fen, rule)
+      return mor_nogen_find_san(rule, props.fen)
     } catch(e) {   
-      return 'Error' + e
+      return `${e}`
     }
   })
 
@@ -284,7 +297,8 @@ function Codebox(props: { fen?: FEN }) {
       return
     }
 
-    return mor3(rule.rule, props.fen)
+    set_m(m)
+    return mor_nogen(rule.rule, props.fen)
 
     //let pos = Chess.fromSetup(parseFen(props.fen).unwrap()).unwrap()
     //return print_rules(make_root(props.fen, rule.rule, m), pos)
