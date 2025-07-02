@@ -65,11 +65,11 @@ function work_while_checking() {
     puzzles = puzzles.filter(_ => !double_solution.includes(_.id))
     //puzzles = puzzles.filter(_ => _.tags['mate'])
 
-    puzzles = puzzles.slice(0, 5000)
+    puzzles = puzzles.slice(0, 1000)
 
     for (let i = 0; i < puzzles.length; i++) {
         if (i % 10 === 0) {
-            //send_progress([i, puzzles.length])
+            send_progress([i, puzzles.length])
         }
 
         let puzzle = puzzles[i]

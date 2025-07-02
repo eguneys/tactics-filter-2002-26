@@ -160,7 +160,7 @@ export function solve_p(p: Puzzle, rule: string) {
       //let solved_san = find_san7(fen, rule)
       let solved_san = cache_san(fen, rule)
       if (p.id === '0000D') {
-        console.log(solved_san, 'XX', sans[0])
+        //console.log(solved_san, 'XX', sans[0])
       }
       if (solved_san === undefined) {
         return -1

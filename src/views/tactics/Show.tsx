@@ -110,15 +110,15 @@ export default function Tactics() {
   }
 
   const on_selected = (puzzle: Puzzle) => {
-    batch(() => {
-      set_replay_tree('cursor_path', '')
-      set_p_store('puzzle_id', puzzle.id)
-    })
+    set_p_store('puzzle_id', puzzle.id)
+    set_replay_tree('cursor_path', '')
 
     setTimeout(() => {
       console.log('going path', c_props.get_next_path)
       goto_path_if_can(c_props.get_next_path)
     }, 200)
+
+
   }
 
   const on_copy_fen = () => {
@@ -150,7 +150,7 @@ export default function Tactics() {
     <>
     <main class='tactics-filter'>
       <div class='code-wrap'>
-          <Codebox fen={fen()} />
+          <Codebox fen={fen()} on_reset_cursor_path={() => set_replay_tree('cursor_path', '')}/>
       </div>
       <div class='list-wrap'>
         <div class='filter'>
@@ -194,7 +194,7 @@ const Progress = () => {
 }
 
 
-function Codebox(props: { fen?: FEN }) {
+function Codebox(props: { fen?: FEN, on_reset_cursor_path: () => void }) {
 
   let ww = useWorker()
   const filtered = createMemo(mapArray(() => ww.all, PuzzleMemo.create))
@@ -241,6 +241,7 @@ function Codebox(props: { fen?: FEN }) {
       l.splice(i, 1, updated)
       set_rule_list([...l])
 
+      props.on_reset_cursor_path()
       ww.rules([updated])
     }
   }
@@ -301,12 +302,8 @@ function Codebox(props: { fen?: FEN }) {
     try {
       return mor_nogen(rule.rule, props.fen)
     } catch (e) {
-      console.error(e)
-      return e
+      return `${e}`
     }
-
-    //let pos = Chess.fromSetup(parseFen(props.fen).unwrap()).unwrap()
-    //return print_rules(make_root(props.fen, rule.rule, m), pos)
   })
 
   return (<>
