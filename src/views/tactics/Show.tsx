@@ -298,7 +298,12 @@ function Codebox(props: { fen?: FEN }) {
     }
 
     set_m(m)
-    return mor_nogen(rule.rule, props.fen)
+    try {
+      return mor_nogen(rule.rule, props.fen)
+    } catch (e) {
+      console.error(e)
+      return e
+    }
 
     //let pos = Chess.fromSetup(parseFen(props.fen).unwrap()).unwrap()
     //return print_rules(make_root(props.fen, rule.rule, m), pos)
