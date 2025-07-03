@@ -111,14 +111,16 @@ export default function Tactics() {
 
   const on_selected = (puzzle: Puzzle) => {
     set_p_store('puzzle_id', puzzle.id)
+    set_cursor_path()
+  }
+
+  const set_cursor_path = () => {
     set_replay_tree('cursor_path', '')
 
     setTimeout(() => {
       console.log('going path', c_props.get_next_path)
       goto_path_if_can(c_props.get_next_path)
     }, 200)
-
-
   }
 
   const on_copy_fen = () => {
@@ -150,7 +152,7 @@ export default function Tactics() {
     <>
     <main class='tactics-filter'>
       <div class='code-wrap'>
-          <Codebox fen={fen()} on_reset_cursor_path={() => set_replay_tree('cursor_path', '')}/>
+          <Codebox fen={fen()} on_reset_cursor_path={set_cursor_path}/>
       </div>
       <div class='list-wrap'>
         <div class='filter'>

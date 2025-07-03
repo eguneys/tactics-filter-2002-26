@@ -3,6 +3,7 @@ import { parse_puzzles, type Puzzle, type Rule, solve_p, yn_filter } from "./puz
 import tenk from '../assets/tenk_puzzle.csv?raw'
 //import a_hundred from './assets/a_hundred_puzzles.csv?raw'
 import { PositionManager, set_m } from "hopefox"
+import { fen_turn } from '../components/step_types'
 
 let all: Puzzle[] = []
 
@@ -65,6 +66,7 @@ function work_while_checking() {
     puzzles = puzzles.filter(_ => !double_solution.includes(_.id))
     //puzzles = puzzles.filter(_ => _.tags['mate'])
 
+    puzzles = puzzles.filter(_ => fen_turn(_.fen) === 'black')
     puzzles = puzzles.slice(0, 1000)
 
     for (let i = 0; i < puzzles.length; i++) {
