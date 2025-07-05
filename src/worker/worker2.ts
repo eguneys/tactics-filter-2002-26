@@ -52,7 +52,11 @@ function send_work() {
     postMessage(work_while_checking())
 }
 
-const double_solution = ['013ze']
+const double_solution = ['013ze', '05cho']
+
+let excluded_ids = [
+   '01lp3','01nIi','01tcI','01xk5','021YZ','022HT','024jR','029o2','02Aqe','02CJh','02EdZ','02JpW','02NlV',
+]
 
 function work_while_checking() {
 
@@ -65,6 +69,18 @@ function work_while_checking() {
     //puzzles = puzzles.filter(_ => _.id === '063RU')
     puzzles = puzzles.filter(_ => !double_solution.includes(_.id))
     //puzzles = puzzles.filter(_ => _.tags['mate'])
+
+    puzzles = puzzles.filter(_ => !_.tags['endgame'] && !_.tags['promotion'] && !_.tags['advancedPawn'])
+
+    puzzles = puzzles.filter(_ => !['0050w', '006wz', '00Ahb'].includes(_.id))
+    puzzles = puzzles.filter(_ => !['00Rlv', '00VJF', '00WcO', '00WiB'].includes(_.id))
+    puzzles = puzzles.filter(_ => !['00YeV', '00bXU', '00cW9', '00eix', '00jmi', '00km1'].includes(_.id))
+    puzzles = puzzles.filter(_ => !['00pYK', '00s9L'].includes(_.id))
+    puzzles = puzzles.filter(_ => !['00t8q', '00xmm', '00z3O', '012QY', '0198I'].includes(_.id))
+    puzzles = puzzles.filter(_ => !['0199s', '01AHi', '01DHd','01GCT', '01J3E'].includes(_.id))
+    puzzles = puzzles.filter(_ => !['01KDp', '01M18', '01NZ8', '01OAI'].includes(_.id))
+    puzzles = puzzles.filter(_ => !['01UXl', '01VO2', '01Vfj'].includes(_.id))
+    puzzles = puzzles.filter(_ => !excluded_ids.includes(_.id))
 
     puzzles = puzzles.filter(_ => fen_turn(_.fen) === 'black')
     puzzles = puzzles.slice(0, 1000)

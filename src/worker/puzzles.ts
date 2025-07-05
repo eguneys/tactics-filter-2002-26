@@ -6,7 +6,7 @@ import { mor_nogen_find_san } from 'hopefox'
 
 export function parse_puzzles(str: string): Puzzle[] {
     return str.trim().split('\n').map(_ => {
-        let [id, fen, moves, _a, _b, _c, _d, _tags] = _.split(',')
+        let [id, fen, moves, rating, _b, _c, _d, _tags] = _.split(',')
 
         let sans: string[] = []
         let move_fens: string[] = []
@@ -29,11 +29,9 @@ export function parse_puzzles(str: string): Puzzle[] {
         let tags: Record<string, true> = {}
         _tags.split(' ').forEach(_ => tags[_] = true)
 
-
-
         return {
             rules: [],
-            id, link, fen, moves, tags, move_fens, sans, has_tags, has_pattern, solve: { i: undefined }
+            id, link, fen, moves, tags, rating: parseInt(rating), move_fens, sans, has_tags, has_pattern, solve: { i: undefined }
         }
     })
 }
@@ -45,6 +43,7 @@ export type Puzzle = {
   moves: string,
   sans: string[],
   move_fens: string[],
+  rating: number,
   tags: Record<string, true>,
   has_tags: Record<string, true>,
   has_pattern: Record<string, true>,
@@ -72,6 +71,17 @@ export const puzzle_has_tags = (puzzle: Puzzle): Record<string, true> => {
     }
   }
   res[`id_${puzzle.id}`] = true
+
+  if (puzzle.rating < 1500) {
+    res['easy'] = true
+  } else if (puzzle.rating < 2000) {
+    res['medium'] = true
+  } else if (puzzle.rating < 2300) {
+    res['advanced'] = true
+  } else {
+    res['high'] = true
+  }
+
   return res
 }
 
@@ -123,7 +133,7 @@ const rule_to_tags = (rule: RuleSolve) => {
 
 
 
-const lruCache = new LRUCache<string>(60000); // Set a capacity
+const lruCache = new LRUCache<string>(200000); // Set a capacity
 
 function cache_san(fen: string, rule: string) {
     const key = `${fen}${rule}`;

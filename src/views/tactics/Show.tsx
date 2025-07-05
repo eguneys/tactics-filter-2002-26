@@ -1,5 +1,5 @@
 import wasm_url from '../../assets/wasm/hopefox.wasm?url'
-import { batch, createMemo, createSelector, createSignal, For, mapArray, Show } from "solid-js"
+import { batch, createComputed, createEffect, createMemo, createSelector, createSignal, For, mapArray, on, Show } from "solid-js"
 import './Show.scss'
 import { puzzle_all_tags, yn_filter, type Puzzle } from "../../worker/puzzles"
 import { non_passive_on_wheel, PlayUciBoard } from "../../components/PlayUciBoard"
@@ -39,7 +39,7 @@ export default function Tactics() {
         a_hundred().filter(f_filter1()).filter(f_filter2())
     )
 
-    const selected_puzzle = createMemo(() => filtered_tactics().find(_ => _.id === p_store.puzzle_id))
+    const selected_puzzle = createMemo(() => filtered_tactics().find(_ => _.id === p_store.puzzle_id) ?? filtered_tactics()[0])
 
     const on_goto_path = (path?: Path) => {
       if (path === undefined) {
@@ -110,18 +110,20 @@ export default function Tactics() {
   }
 
   const on_selected = (puzzle: Puzzle) => {
-    set_p_store('puzzle_id', puzzle.id)
-    set_cursor_path()
+      set_p_store('puzzle_id', puzzle.id)
   }
 
   const set_cursor_path = () => {
     set_replay_tree('cursor_path', '')
 
     setTimeout(() => {
-      console.log('going path', c_props.get_next_path)
+      // console.log('going path', c_props.get_next_path)
       goto_path_if_can(c_props.get_next_path)
     }, 200)
   }
+  //set_cursor_path()
+
+  createComputed(on(selected_puzzle, set_cursor_path))
 
   const on_copy_fen = () => {
     navigator.clipboard.writeText(fen())
@@ -136,23 +138,32 @@ export default function Tactics() {
 
   const set_filter_1 = (value: string) => {
     batch(() => {
-      set_replay_tree('cursor_path', '')
+      //set_replay_tree('cursor_path', '')
       set_p_store('filter1', value)
     })
   }
   const set_filter_2 = (value: string) => {
     batch(() => {
-      set_replay_tree('cursor_path', '')
+      //set_replay_tree('cursor_path', '')
       set_p_store('filter2', value)
     })
   }
 
+  const on_skip_id = () => {
+    set_filter_2(p_store.filter2 + ' id_' + selected_puzzle().id)
+  }
+
+  const [set_copy_rules, request_copy_rules] = createSignal(undefined, { equals: false })
+
+  const copy_rules = () => {
+    request_copy_rules()
+  }
 
   return (
     <>
     <main class='tactics-filter'>
       <div class='code-wrap'>
-          <Codebox fen={fen()} on_reset_cursor_path={set_cursor_path}/>
+          <Codebox fen={fen()} on_reset_cursor_path={() => {}} set_copy_rules={set_copy_rules}/>
       </div>
       <div class='list-wrap'>
         <div class='filter'>
@@ -171,6 +182,8 @@ export default function Tactics() {
         <div class='tools'>
           <button onClick={on_copy_fen}>Copy FEN</button>
           <button onClick={on_copy_id}>Copy Puzzle ID</button>
+          <button onClick={on_skip_id}>Skip ID</button>
+          <button onClick={copy_rules}>Copy All Rules</button>
         </div>
         <ReplayTreeComponent handle_goto_path={on_goto_path} lose_focus={true} replay_tree={replay_tree}/>
       </div>
@@ -196,7 +209,7 @@ const Progress = () => {
 }
 
 
-function Codebox(props: { fen?: FEN, on_reset_cursor_path: () => void }) {
+function Codebox(props: { fen?: FEN, on_reset_cursor_path: () => void, set_copy_rules: () => void}) {
 
   let ww = useWorker()
   const filtered = createMemo(mapArray(() => ww.all, PuzzleMemo.create))
@@ -209,6 +222,12 @@ function Codebox(props: { fen?: FEN, on_reset_cursor_path: () => void }) {
   }
 
 
+  createEffect(on(props.set_copy_rules, () => {
+
+    let res = rule_list().map(_ => _.rule).join('\n\n')
+
+    navigator.clipboard.writeText(res)
+  }, { defer: true}))
 
   function new_rule() {
     let i = 1
