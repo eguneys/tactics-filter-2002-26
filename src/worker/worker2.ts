@@ -83,7 +83,7 @@ function work_while_checking() {
     puzzles = puzzles.filter(_ => !excluded_ids.includes(_.id))
 
     puzzles = puzzles.filter(_ => fen_turn(_.fen) === 'black')
-    puzzles = puzzles.slice(0, 1000)
+    puzzles = puzzles.slice(0, 1001)
 
     for (let i = 0; i < puzzles.length; i++) {
         if (i % 10 === 0) {
