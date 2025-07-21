@@ -1,5 +1,5 @@
 import wasm_url from '../assets/wasm/hopefox.wasm?url'
-import { parse_puzzles, type Puzzle, type Rule, solve_p, yn_filter } from "./puzzles"
+import { parse_puzzles, type Puzzle, type Rule, find_all_lines, yn_filter } from "./puzzles"
 import tenk from '../assets/tenk_puzzle.csv?raw'
 //import a_hundred from './assets/a_hundred_puzzles.csv?raw'
 import { PositionManager, set_m } from "hopefox"
@@ -71,6 +71,7 @@ function work_while_checking() {
     //puzzles = puzzles.filter(_ => _.tags['mate'])
 
     puzzles = puzzles.filter(_ => !_.tags['endgame'] && !_.tags['promotion'] && !_.tags['advancedPawn'])
+    puzzles = puzzles.filter(_ => !_.tags['mate'])
 
     puzzles = puzzles.filter(_ => !['0050w', '006wz', '00Ahb'].includes(_.id))
     puzzles = puzzles.filter(_ => !['00Rlv', '00VJF', '00WcO', '00WiB'].includes(_.id))
@@ -83,7 +84,8 @@ function work_while_checking() {
     puzzles = puzzles.filter(_ => !excluded_ids.includes(_.id))
 
     puzzles = puzzles.filter(_ => fen_turn(_.fen) === 'black')
-    puzzles = puzzles.slice(0, 1001)
+    //puzzles = puzzles.filter(_ => puzzle_has_tags(_)['easy'])
+    //puzzles = puzzles.slice(0, 33)
 
     for (let i = 0; i < puzzles.length; i++) {
         if (i % 10 === 0) {
@@ -91,7 +93,9 @@ function work_while_checking() {
         }
 
         let puzzle = puzzles[i]
-        puzzle.rules = rules.map(rule => ({ rule, solve: solve_p(puzzle, rule.rule)}))
+        //puzzle.rules = rules.map(rule => ({ rule, a_solved: solve_all_p(puzzle, rule.rule), solve: solve_p(puzzle, rule.rule)}))
+
+        puzzle.rules = rules.map(rule => ({ rule, lines: find_all_lines(puzzle, rule.rule)}))
     }
 
     let filtered = filter ? puzzles.filter(yn_filter(filter)) : puzzles

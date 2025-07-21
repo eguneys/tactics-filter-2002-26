@@ -121,7 +121,7 @@ export default function Tactics() {
       goto_path_if_can(c_props.get_next_path)
     }, 200)
   }
-  //set_cursor_path()
+  set_cursor_path()
 
   createComputed(on(selected_puzzle, set_cursor_path))
 

@@ -1,4 +1,4 @@
-import { Chess, LRUCache, parseUci } from "hopefox"
+import { Chess, LRUCache, mor_nogen_find_lines, parseUci } from "hopefox"
 import { makeFen, parseFen } from "hopefox/fen"
 import { makeSan } from "hopefox/san"
 import { mor_nogen_find_san } from 'hopefox'
@@ -50,9 +50,13 @@ export type Puzzle = {
   rules: RuleSolve[]
 }
 
+type SolveResult = 'ok' | 'fail' | 'skip'
+
 export type RuleSolve = {
   rule: Rule,
-  solve: number | undefined 
+  //solve: number | undefined 
+  //a_solved: SolveResult[]
+  lines: boolean | undefined
 }
 
 export type Rule = { name: string, rule: string, z: number }
@@ -94,6 +98,7 @@ export const puzzle_all_tags = (puzzle: Puzzle): Record<string, boolean> => {
     tags.forEach(tag => res[tag] = true)
 
 
+    /*
     let tags2 = []
     let attempted = puzzle.rules.filter(_ => _.solve === undefined || _.solve >= 0)
 
@@ -112,12 +117,14 @@ export const puzzle_all_tags = (puzzle: Puzzle): Record<string, boolean> => {
     if (attempted.length === 1) {
       res['single_attempt'] = true
     }
+      */
   }
 
   return res
 }
 
 const rule_to_tags = (rule: RuleSolve) => {
+  /*
   if (rule.solve === undefined) {
     if (rule.rule.rule.includes('.')) {
       //return [`solved_${rule.rule.name}`]
@@ -129,6 +136,15 @@ const rule_to_tags = (rule: RuleSolve) => {
   } else {
     return ['']
   }
+    */
+
+  if (rule.lines === true) {
+    return ['solved', `solved_${rule.rule.name}`]
+  } else if (rule.lines === false) {
+    return ['failed', `failed_${rule.rule.name}`]
+  }
+
+   return ['']
 }
 
 
@@ -157,6 +173,50 @@ function cache_san(fen: string, rule: string) {
     } catch {
       return undefined
     }
+}
+
+export function find_all_lines(p: Puzzle, rule: string) {
+
+
+  let fen = p.move_fens[0]
+  let sans = p.sans
+
+  let lines = mor_nogen_find_lines(rule, fen)?.flat()
+
+  if (lines === undefined) {
+    return undefined
+  }
+
+  let has_matched = lines.some(_ => _ && _[0] !== '')
+
+  if (!has_matched) {
+    return undefined
+  }
+
+
+  if (lines.find(_ => _?.join(' ').trim() === sans.join(' ').trim())) {
+    return true
+  }
+
+  return false
+}
+
+export function solve_all_p(p: Puzzle, rule: string) {
+  let res: SolveResult[] = []
+    for (let i = 0; i < p.move_fens.length; i += 2) {
+        let fen = p.move_fens[i]
+        let sans = p.sans.slice(i)
+      let solved_san = cache_san(fen, rule)
+      if (solved_san === undefined) {
+        res.push('skip')
+      } else if (solved_san.split(' ')[0] !== sans[0]) {
+        res.push('fail')
+      } else {
+        res.push('ok')
+      }
+
+    }
+    return res
 }
 
 export function solve_p(p: Puzzle, rule: string) {
